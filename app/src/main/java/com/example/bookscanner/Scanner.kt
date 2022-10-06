@@ -31,7 +31,7 @@ class Scanner : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
-        setContentView(view) //
+        setContentView(view)
 
         title = "ScannerApp"
         val button: Button = findViewById(R.id.signin_signup_btn)
