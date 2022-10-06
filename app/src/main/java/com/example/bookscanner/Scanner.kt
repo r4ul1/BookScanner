@@ -59,14 +59,13 @@ class Scanner : AppCompatActivity() {
 
             cameraSource = CameraSource.Builder(this, barcodeDetector)
                 .setRequestedPreviewSize(1920, 1080)
-                .setAutoFocusEnabled(true) //you should add this feature
+                .setAutoFocusEnabled(true)
                 .build()
 
             binding.cameraSurfaceView.getHolder().addCallback(object : SurfaceHolder.Callback {
                 @SuppressLint("MissingPermission")
                 override fun surfaceCreated(holder: SurfaceHolder) {
                     try {
-                        //Start preview after 1s delay
                         cameraSource.start(holder)
                     } catch (e: IOException) {
                         e.printStackTrace()
@@ -111,7 +110,6 @@ class Scanner : AppCompatActivity() {
                         scannedValue = barcodes.valueAt(0).rawValue
 
 
-                        //Don't forget to add this line printing value or finishing activity must run on main thread
                         runOnUiThread {
                             cameraSource.stop()
                             Toast.makeText(this@Scanner, "value- $scannedValue", Toast.LENGTH_SHORT)
