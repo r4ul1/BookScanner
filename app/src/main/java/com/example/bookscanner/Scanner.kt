@@ -43,8 +43,9 @@ class Scanner : AppCompatActivity() {
                     this@Scanner, android.Manifest.permission.CAMERA
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
-
+                askForCameraPermission()
             } else {
+                setupControls()
             }
 
             val aniSlide: Animation =
