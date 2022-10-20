@@ -26,4 +26,23 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <Button
+        android:id="@+id/GoBack"
+        android:layout_width="118dp"
+        android:layout_height="52dp"
+        android:layout_gravity="center"
+        android:background="@color/cardview_light_background"
+        android:drawableStart="@color/white"
+        android:drawableLeft="@color/white"
+        android:paddingLeft="16sp"
+        android:paddingRight="16sp"
+        android:text="Return"
+        android:textAllCaps="false"
+        android:textColor="#fff"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        tools:ignore="HardcodedText,MissingConstraints,RtlHardcoded"
+        tools:layout_editor_absoluteX="277dp"
+        tools:layout_editor_absoluteY="663dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

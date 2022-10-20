@@ -33,6 +33,13 @@ class Scanner : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
+        val button = findViewById<Button>(R.id.GoBack)
+
+        button.setOnClickListener{
+            val intent = Intent (this, com.example.bookscanner.Login ::class.java)
+            startActivity(intent)
+            finish()
+        }
 
         if (ContextCompat.checkSelfPermission(
                 this@Scanner, android.Manifest.permission.CAMERA
