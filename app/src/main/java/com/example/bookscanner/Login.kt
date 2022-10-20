@@ -12,7 +12,7 @@ import java.util.Scanner
 
 class Login : AppCompatActivity() {
 
-    @SuppressLint("WrongViewCast")
+    @SuppressLint("WrongViewCast", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login_activity)
@@ -41,7 +41,7 @@ class Login : AppCompatActivity() {
         val button = findViewById<Button>(R.id.signin_signup_btn)
 
         button.setOnClickListener{
-            val intent = Intent(this, com.example.bookscanner.ScannerActivity::class.java)
+            val intent = Intent(this, com.example.bookscanner.ScannerActivity ::class.java)
             startActivity(intent)
             finish()
         }
