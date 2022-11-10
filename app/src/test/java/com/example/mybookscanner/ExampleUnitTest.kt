@@ -1,4 +1,4 @@
-package com.example.bookscanner
+package com.example.mybookscanner
 
 import org.junit.Test
 
