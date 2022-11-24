@@ -19,6 +19,11 @@ class MainActivity : AppCompatActivity() {
         pagerAdapter.addFragmet(LoginFragment())
         pagerAdapter.addFragmet(RegisterFragment())
         viewPager.adapter = pagerAdapter
+
+        val loginFragment = LoginFragment()
+        val fm: FragmentManager = supportFragmentManager
+        fm.beginTransaction().add(R.id.login,loginFragment).commit()
+
     }
 
     internal inner class AuthenticationPagerAdapter(fm: FragmentManager?) :
