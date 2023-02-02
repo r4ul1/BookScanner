@@ -62,7 +62,6 @@ class RegisterActivity : AppCompatActivity() {
 
 
             assert(!(return_json["error"] as Boolean))
-            //println(return_json.obj("data")?.int("user_id"))
 
 
             finish()

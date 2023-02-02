@@ -1,22 +1,26 @@
 package com.example.mybookscanner
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.StrictMode
 import android.view.View
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.beust.klaxon.JsonObject
+import com.beust.klaxon.Klaxon
+import com.beust.klaxon.Parser
 import com.google.zxing.integration.android.IntentIntegrator
-
-class MyIntentIntegrator(activity: Activity) : IntentIntegrator(activity) {
-
-    public override fun startActivityForResult(intent: Intent?, code: Int) {
-        super.startActivityForResult(intent, code)
-    }
-}
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.io.PrintWriter
+import java.lang.StringBuilder
+import java.net.InetAddress
+import java.net.Socket
 
 
 class BarcodeScannerActivity : AppCompatActivity() {
@@ -47,12 +51,54 @@ class BarcodeScannerActivity : AppCompatActivity() {
             if (data != null) {
                 val data_str = data?.getStringExtra("result")
                 if (data_str != null) {
-                    resultTextView.text = data_str
+                    var title = sendBarcode(data_str)
+                    resultTextView.text = title
                 } else {
                     Toast.makeText(this, "Scan cancelled", Toast.LENGTH_LONG).show()
                 }
             }
         }
+    }
+
+    fun sendBarcode(barcode:String): String? {
+
+        val shared_preferences = this.getSharedPreferences("data", Context.MODE_PRIVATE)
+        var token = shared_preferences.getString("token", MainApplication.Companion.token)
+
+        val data = mapOf(
+            "barcode" to barcode
+        )
+
+        val auth = mapOf(
+            "type" to "token",
+            "token" to token
+        )
+
+        val request = mapOf (
+            "request" to "GET",
+            "type" to "book",
+            "auth" to auth,
+            "data" to data
+        )
+
+        val request_data = Klaxon().toJsonString(request).replace("\\", "")
+
+        var address = InetAddress.getByName("ableytner.ddns.net")
+        val client = Socket(address.hostAddress, 20002)
+        val output = PrintWriter(client.getOutputStream(), true)
+        val input = BufferedReader(InputStreamReader(client.getInputStream()))
+
+        output.println(request_data)
+
+        Thread.sleep(100)
+        var return_data = input.readLine()
+        var return_json = Parser.default().parse(StringBuilder(return_data)) as JsonObject
+
+        if(return_json["error"] as Boolean){
+            return "This book is not in our library mate ;)"
+        }
+
+        return return_json.obj("data")?.string("title")
     }
 
     companion object {

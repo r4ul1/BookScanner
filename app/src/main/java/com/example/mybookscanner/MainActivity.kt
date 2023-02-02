@@ -104,7 +104,7 @@ class MainActivity : AppCompatActivity() {
                     //Don't forget to add this line printing value or finishing activity must run on main thread
                     runOnUiThread {
                         cameraSource.stop()
-                        Toast.makeText(this@MainActivity, "value- $scannedValue", Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(this@MainActivity, "value- $scannedValue", Toast.LENGTH_SHORT).show()
 
                         val name = Intent()
                         name.putExtra("result", scannedValue)
@@ -114,7 +114,6 @@ class MainActivity : AppCompatActivity() {
                     }
                 }else
                 {
-                    // Toast.makeText(this@MainActivity, "value- else", Toast.LENGTH_SHORT).show()
 
                 }
             }
