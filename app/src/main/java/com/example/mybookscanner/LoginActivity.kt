@@ -1,8 +1,10 @@
 package com.example.mybookscanner
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.StrictMode
 import android.widget.Button
 import android.widget.EditText
 import com.beust.klaxon.JsonObject
@@ -25,6 +27,16 @@ class LoginActivity : AppCompatActivity() {
                 startActivity(intent)
             }
         })
+
+        val shared_preferences = this.getSharedPreferences("data", Context.MODE_PRIVATE)
+        var token = shared_preferences.getString("token", MainApplication.Companion.token)
+
+        if(!(token.isNullOrEmpty())){
+            val intent = Intent(this@LoginActivity, BarcodeScannerActivity::class.java)
+            startActivity(intent)
+
+            finish()
+        }
 
         val bt = findViewById<Button>(R.id.btn_login)
         bt.setOnClickListener{
@@ -90,10 +102,22 @@ class LoginActivity : AppCompatActivity() {
             assert(!(login_return_json["error"] as Boolean))
             MainApplication.Companion.token = login_return_json.obj("data")?.string("token").toString()
 
+            val shared_preferences = this.getSharedPreferences("data", Context.MODE_PRIVATE)
+            val editor = shared_preferences.edit()
+            editor.putString("token", MainApplication.Companion.token)
+            editor.apply()
+
             println(MainApplication.Companion.token)
 
 
+            val intent = Intent(this@LoginActivity, BarcodeScannerActivity::class.java)
+            startActivity(intent)
 
+            finish()
         }
+
+        var policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+
+        StrictMode.setThreadPolicy(policy)
     }
 }

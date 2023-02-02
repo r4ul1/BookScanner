@@ -3,7 +3,9 @@ package com.example.mybookscanner
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.os.StrictMode
 import android.view.View
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -26,23 +28,26 @@ class BarcodeScannerActivity : AppCompatActivity() {
         setContentView(R.layout.activity_barcode_scanner)
 
         resultTextView = findViewById(R.id.resultTextView)
-    }
 
-    fun startScan(view: View) {
-        val scanner = MyIntentIntegrator(this)
-        scanner.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES)
-        scanner.setBeepEnabled(false)
-        intent = Intent(this, MainActivity::class.java)
-        scanner.startActivityForResult(intent, REQUEST_CODE)
+        val bt = findViewById<Button>(R.id.scanButton)
+        bt.setOnClickListener{
+            Toast.makeText(this, "Scan started", Toast.LENGTH_LONG).show()
+            val intent = Intent(this, MainActivity::class.java)
+            startActivityForResult(intent, REQUEST_CODE)
+        }
+
+        var policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+
+        StrictMode.setThreadPolicy(policy)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_CODE) {
             if (data != null) {
-                val result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
-                if (result.contents != null) {
-                    resultTextView.text = result.contents
+                val data_str = data?.getStringExtra("result")
+                if (data_str != null) {
+                    resultTextView.text = data_str
                 } else {
                     Toast.makeText(this, "Scan cancelled", Toast.LENGTH_LONG).show()
                 }
