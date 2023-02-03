@@ -24,6 +24,9 @@
             android:name=".BarcodeScannerActivity"
             android:exported="false" />
         <activity
+            android:name=".BookView"
+            android:exported="false" />
+        <activity
             android:name=".RegisterActivity"
             android:exported="false" />
         <activity

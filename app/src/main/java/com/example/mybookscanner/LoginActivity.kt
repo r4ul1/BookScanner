@@ -20,6 +20,11 @@ import java.net.Socket
 class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        var policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+
+        StrictMode.setThreadPolicy(policy)
+
         setContentView(R.layout.activity_login)
         window.decorView.setOnTouchListener(object:OnSwipeTouchListener(this@LoginActivity){
             override fun onSwipeLeft() {
@@ -32,10 +37,40 @@ class LoginActivity : AppCompatActivity() {
         var token = shared_preferences.getString("token", MainApplication.Companion.token)
 
         if(!(token.isNullOrEmpty())){
-            val intent = Intent(this@LoginActivity, BarcodeScannerActivity::class.java)
-            startActivity(intent)
 
-            finish()
+            val address = InetAddress.getByName("ableytner.ddns.net")
+
+            val user_client = Socket(address.hostAddress, 20002)
+            val user_output = PrintWriter(user_client.getOutputStream(), true)
+            val user_input = BufferedReader(InputStreamReader(user_client.getInputStream()))
+
+
+            var user_auth = mapOf(
+                "type" to "token",
+                "token" to token
+            )
+
+            var user_request = mapOf (
+                "request" to "GET",
+                "type" to "user",
+                "auth" to user_auth
+            )
+
+            var user_request_data = Klaxon().toJsonString(user_request).replace("\\", "")
+
+            user_output.println(user_request_data)
+
+            Thread.sleep(100)
+            var user_return_data = user_input.readLine()
+            var user_return_json = Parser.default().parse(StringBuilder(user_return_data)) as JsonObject
+
+            if(!(user_return_json.boolean("error")as Boolean)){
+
+                val intent = Intent(this@LoginActivity, BarcodeScannerActivity::class.java)
+                startActivity(intent)
+
+                finish()
+            }
         }
 
         val bt = findViewById<Button>(R.id.btn_login)
@@ -115,9 +150,5 @@ class LoginActivity : AppCompatActivity() {
 
             finish()
         }
-
-        var policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
-
-        StrictMode.setThreadPolicy(policy)
     }
 }

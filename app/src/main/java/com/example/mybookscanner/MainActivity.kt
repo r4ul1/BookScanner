@@ -62,7 +62,6 @@ class MainActivity : AppCompatActivity() {
             @SuppressLint("MissingPermission")
             override fun surfaceCreated(holder: SurfaceHolder) {
                 try {
-                    //Start preview after 1s delay
                     cameraSource.start(holder)
                 } catch (e: IOException) {
                     e.printStackTrace()
@@ -101,10 +100,8 @@ class MainActivity : AppCompatActivity() {
                     scannedValue = barcodes.valueAt(0).rawValue
 
 
-                    //Don't forget to add this line printing value or finishing activity must run on main thread
                     runOnUiThread {
                         cameraSource.stop()
-                        //Toast.makeText(this@MainActivity, "value- $scannedValue", Toast.LENGTH_SHORT).show()
 
                         val name = Intent()
                         name.putExtra("result", scannedValue)
