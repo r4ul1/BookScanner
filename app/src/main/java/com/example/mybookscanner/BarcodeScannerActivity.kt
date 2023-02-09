@@ -100,10 +100,49 @@ class BarcodeScannerActivity : AppCompatActivity() {
             return "This book is not in our library mate ;)"
         }
 
+        return_json.obj("data")?.int("book_id")?.let { borrow_book(it) }
+
         return return_json.obj("data")?.string("title")
     }
 
     companion object {
         private const val REQUEST_CODE = 100
+    }
+
+    fun borrow_book(book_id:Int){
+
+        val shared_preferences = this.getSharedPreferences("data", Context.MODE_PRIVATE)
+        var token = shared_preferences.getString("token", MainApplication.Companion.token)
+
+        val data = mapOf(
+            "book_id" to book_id
+        )
+
+        val auth = mapOf(
+            "type" to "token",
+            "token" to token
+        )
+
+        val request = mapOf (
+            "request" to "PUT",
+            "type" to "borrow",
+            "auth" to auth,
+            "data" to data
+        )
+
+        val request_data = Klaxon().toJsonString(request).replace("\\", "")
+
+        var address = InetAddress.getByName("ableytner.ddns.net")
+        val client = Socket(address.hostAddress, 20002)
+        val output = PrintWriter(client.getOutputStream(), true)
+        val input = BufferedReader(InputStreamReader(client.getInputStream()))
+
+        output.println(request_data)
+
+        Thread.sleep(100)
+        var return_data = input.readLine()
+        var return_json = Parser.default().parse(StringBuilder(return_data)) as JsonObject
+
+        assert(!(return_json["error"] as Boolean))
     }
 }

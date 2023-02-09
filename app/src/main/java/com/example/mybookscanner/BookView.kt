@@ -3,10 +3,10 @@ package com.example.mybookscanner
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import android.content.Context
-import android.widget.TextView
+import android.content.Intent
+import android.widget.ArrayAdapter
+import android.widget.ListView
 import com.beust.klaxon.JsonArray
 import java.net.InetAddress
 import java.net.Socket
@@ -19,36 +19,100 @@ import com.beust.klaxon.JsonObject
 
 class BookView : AppCompatActivity() {
 
-    private lateinit var booksRecyclerView: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.view_book)
 
-        booksRecyclerView = findViewById(R.id.recycler_view)
-        booksRecyclerView.layoutManager = LinearLayoutManager(this)
-        booksRecyclerView.adapter = BooksAdapter()
-    }
+        val arrayList = ArrayList<String>(getBooks())
 
-    inner class BooksAdapter : RecyclerView.Adapter<BooksViewHolder>() {
-        private val books = getBooks()
+        var mListView = findViewById<ListView>(R.id.booklist)
+        val arrayAdapter = ArrayAdapter(this,
+            android.R.layout.simple_list_item_1, arrayList)
+        mListView.adapter = arrayAdapter
 
-        override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): BooksViewHolder {
-            val itemView = layoutInflater.inflate(R.layout.book_item, parent, false)
-            return BooksViewHolder(itemView)
-        }
-
-        override fun getItemCount(): Int {
-            return books.size
-        }
-
-        override fun onBindViewHolder(holder: BooksViewHolder, position: Int) {
-            holder.titleTextView.text = books[position]
+        mListView.setOnItemClickListener { parent, view, position, id ->
+            val element = arrayList.get(position)
+            returnBook(element)
+            arrayList.remove(element)
+            finish()
         }
     }
 
-    inner class BooksViewHolder(itemView: android.view.View) : RecyclerView.ViewHolder(itemView) {
-        val titleTextView = itemView.findViewById<TextView>(R.id.object_text_view)
+    private fun returnBook(name: String){
+        val book_id = GetBookByName(name)
+
+        val shared_preferences = this.getSharedPreferences("data", Context.MODE_PRIVATE)
+        var token = shared_preferences.getString("token", MainApplication.Companion.token)
+
+        val address = InetAddress.getByName("ableytner.ddns.net")
+
+        val data = mapOf(
+            "book_id" to book_id
+        )
+
+        val auth = mapOf(
+            "type" to "token",
+            "token" to token
+        )
+
+        val request = mapOf (
+            "request" to "DELETE",
+            "type" to "borrow",
+            "auth" to auth,
+            "data" to data
+        )
+
+        val request_data = Klaxon().toJsonString(request).replace("\\", "")
+
+        val client = Socket(address.hostAddress, 20002)
+        val output = PrintWriter(client.getOutputStream(), true)
+        val input = BufferedReader(InputStreamReader(client.getInputStream()))
+
+        output.println(request_data)
+
+        Thread.sleep(100)
+        var return_data = input.readLine()
+        var return_json = Parser.default().parse(StringBuilder(return_data)) as JsonObject
+
+        assert(!(return_json["error"] as Boolean))
+    }
+
+    private fun GetBookByName(name: String): Int? {
+        val shared_preferences = this.getSharedPreferences("data", Context.MODE_PRIVATE)
+        var token = shared_preferences.getString("token", MainApplication.Companion.token)
+
+        val address = InetAddress.getByName("ableytner.ddns.net")
+
+        val data = mapOf(
+            "title" to name
+        )
+
+        val auth = mapOf(
+            "type" to "token",
+            "token" to token
+        )
+
+        val request = mapOf (
+            "request" to "GET",
+            "type" to "book",
+            "auth" to auth,
+            "data" to data
+        )
+
+        val request_data = Klaxon().toJsonString(request).replace("\\", "")
+
+        val client = Socket(address.hostAddress, 20002)
+        val output = PrintWriter(client.getOutputStream(), true)
+        val input = BufferedReader(InputStreamReader(client.getInputStream()))
+
+        output.println(request_data)
+
+        Thread.sleep(100)
+        var return_data = input.readLine()
+        var return_json = Parser.default().parse(StringBuilder(return_data)) as JsonObject
+
+        return return_json.obj("data")?.int("book_id")
     }
 
     private fun getBooks(): List<String> {
@@ -115,6 +179,7 @@ class BookView : AppCompatActivity() {
             book.int("book_id")?.let { getBook(it)?.let { books.add(it) } }
         }
 
+        println(books)
         return books
     }
 
